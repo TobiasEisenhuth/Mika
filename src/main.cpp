@@ -1,6 +1,11 @@
 #include <iostream>
 #include "graph.cpp"
 
+struct program_state {
+    bool loaded = false;
+    bool saved = true;
+} state;
+
 enum user_options {
     NONE,
     HELP = 'h',
@@ -13,11 +18,21 @@ enum user_options {
     GRAPH = 'g',
 };
 
+user_options str2option(std::string &str) {
+    return (user_options) str.front();
+}
+
+enum queryModes {
+    FIRST_LETTER,
+    FIRST_WORD,
+    ALL_WORDS,
+};
+
 void showMenu() {
     std::cout << '\t' << "Choose either:\n";
     std::cout << "\t    " << (char)HELP << ", Print this help menu.\n";
     std::cout << "\t    " << (char)QUIT << ", Quit prgramm.\n";
-    std::cout << "\t    " << (char)LOAD_FILE << "Load file.";
+    std::cout << "\t    " << (char)LOAD_FILE << ", Load file.\n";
     std::cout << "\t    " << (char)ADD_TASK << ", Add a task.\n";
     std::cout << "\t    " << (char)SPLIT_TASK << ", Split a task.\n";
     std::cout << "\t    " << (char)ERASE_TASK << ", Erase a task.\n";
@@ -26,14 +41,71 @@ void showMenu() {
     std::cout << std::flush;
 }
 
-user_options queryUser() {
-    std::cout << "> ";
+void queryUser(const std::string &prompt, std::vector<std::string> &result, queryModes mode) {
+    std::cout << prompt;
     std::string user_input;
     std::getline(std::cin, user_input);
-    return !user_input.empty() ? (user_options) user_input.front() : NONE;
+    switch (mode)
+    {
+    case FIRST_LETTER:
+        result.emplace_back(user_input.substr(0,1));
+        break;
+
+    case FIRST_WORD:
+        result.emplace_back(user_input.substr(0, user_input.find(" ")));
+        break;
+
+    case ALL_WORDS:
+        while(!user_input.empty()) {
+            size_t pos = user_input.find(' ');
+            if (pos == std::string::npos) {
+                result.emplace_back(user_input);
+                user_input.clear();
+            } else {
+                result.emplace_back(user_input.substr(0, pos));
+                user_input.erase(0, pos+1);
+            }
+        }
+        break;
+    
+    default:
+        break;
+    }
+    
 }
 
-void execute(user_options& instruction) {
+user_options queryUserOption() {
+    std::vector<std::string> query;
+    queryUser("> ", query, FIRST_LETTER);
+    return !query.front().empty() ? str2option(query.front()) : NONE;
+}
+
+bool load_file(const std::string &filename, Graph &graph) {
+    bool success = graph.from_json(filename);
+    if (success) {
+        std::cout << "\tGraph successfully loaded!\n";
+    } else {
+        std::cout << "\tSomething did not work out loading the graph from file, sorry!\n";
+    }
+    std::cout << std::flush;
+    return success;
+}
+
+bool load_file_from_user_input(Graph &graph) {
+    std::vector<std::string> query;
+    queryUser("Enter file location: > ", query, FIRST_WORD);
+    return load_file(query.front(), graph);
+}
+
+bool interogate() {
+    std::vector<std::string> query;
+    std::string prompt = "\tDo you want to save the changes? (yes/no)\n> ";
+    queryUser(prompt, query, FIRST_LETTER);
+    return query.front() == "y";
+}
+
+void execute(user_options &instruction, Graph &graph) {
+    bool success = false;
     switch (instruction)
     {
         case HELP:
@@ -41,40 +113,63 @@ void execute(user_options& instruction) {
             break;
 
         case QUIT:
+            if (!state.saved && interogate())
+                std::cout << "\tSaved!\n";
+            break;
+
         case NONE:
             break;
 
         case LOAD_FILE:
-            std::cout << "\tFile loaded!" << std::endl;
+            success = load_file_from_user_input(graph);
+            state.loaded = success;
             break;
 
         case ADD_TASK:
-            std::cout << "\tAdded task!" << std::endl;
+            std::cout << "\tAdded task!\n";
+            success = [](){return true;};
+            state.saved = !success;
             break;
 
         case SPLIT_TASK:
-            std::cout << "\tSplit task!" << std::endl;
+            graph.test();
+            std::cout << "\tSplit task!\n";
+            //bool success = add_task();
+            //state.loaded = success;
             break;
 
         case ERASE_TASK:
-            std::cout << "\tErased task!" << std::endl;
+            std::cout << "\tErased task!\n";
+            //bool success = add_task();
+            //state.loaded = success;
             break;
 
         case MOVE_TO:
-            std::cout << "\tMoved to task!" << std::endl;
+            std::cout << "\tMoved to task!\n";
+            //bool success = add_task();
+            //state.loaded = success;
             break;
 
         case GRAPH:
-            std::cout << "\tLook at this graph!" << std::endl;
+            std::cout << "\tLook at this graph!\n";
+            graph.print_structure();
             break;
 
         default:
-            std::cout << "\tInvalid option!" << std::endl;
+            std::cout << "\tInvalid option!\n";
             break;
     }
+    std::cout << std::flush;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
+
+    spadework:
+    Graph graph;
+    if (argc > 1) {
+        bool success = load_file(argv[1], graph);
+        state.loaded = success;
+    }
 
     fresh_start:
     auto instruction = NONE;
@@ -82,8 +177,8 @@ int main(int argc, char **argv) {
 
     main_loop:
     while (instruction != QUIT) {
-        instruction = queryUser();
-        execute(instruction);
+        instruction = queryUserOption();
+        execute(instruction, graph);
     }
 
     end_program:
