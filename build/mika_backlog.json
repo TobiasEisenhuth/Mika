@@ -1,0 +1,182 @@
+[
+    [
+        14,
+        {
+            "children": [],
+            "id": 14,
+            "information": "Show metadata of work (stats).",
+            "parents": [
+                8
+            ]
+        }
+    ],
+    [
+        13,
+        {
+            "children": [],
+            "id": 13,
+            "information": "Show most urgent as well as most important tasks.",
+            "parents": [
+                10
+            ]
+        }
+    ],
+    [
+        0,
+        {
+            "children": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "id": 0,
+            "information": "Mika Backlog",
+            "parents": []
+        }
+    ],
+    [
+        1,
+        {
+            "children": [],
+            "id": 1,
+            "information": "Prevent non-int input to be cast into ID.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        2,
+        {
+            "children": [],
+            "id": 2,
+            "information": "Add human-readable and diff-able file dump of graph.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        3,
+        {
+            "children": [],
+            "id": 3,
+            "information": "Add compatibility to different .json file versions on load.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        4,
+        {
+            "children": [],
+            "id": 4,
+            "information": "Implement revising tasks.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        5,
+        {
+            "children": [],
+            "id": 5,
+            "information": "Implement splitting tasks.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        6,
+        {
+            "children": [],
+            "id": 6,
+            "information": "Implement erasing tasks.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        7,
+        {
+            "children": [],
+            "id": 7,
+            "information": "Implement moving tasks.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        8,
+        {
+            "children": [
+                9,
+                10,
+                14
+            ],
+            "id": 8,
+            "information": "Mika Next Gen",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        9,
+        {
+            "children": [],
+            "id": 9,
+            "information": "Make previous task ID default for next addition.",
+            "parents": [
+                8
+            ]
+        }
+    ],
+    [
+        10,
+        {
+            "children": [
+                11,
+                12,
+                13
+            ],
+            "id": 10,
+            "information": "Make priority system.",
+            "parents": [
+                8
+            ]
+        }
+    ],
+    [
+        11,
+        {
+            "children": [],
+            "id": 11,
+            "information": "Add deadlines.",
+            "parents": [
+                10
+            ]
+        }
+    ],
+    [
+        12,
+        {
+            "children": [],
+            "id": 12,
+            "information": "Add user priority score.",
+            "parents": [
+                10
+            ]
+        }
+    ]
+]
