@@ -6,7 +6,12 @@
 
 struct Graph {
     std::unordered_map<size_t, Node> nodes;
-    size_t next_id = -1; // ID counter
+    size_t next_id = 0; // ID counter
+
+    void reset() {
+        nodes.clear();
+        next_id = 0;
+    }
 
     void to_json(const std::string &filename) const {
         nlohmann::json j = nodes;
@@ -74,9 +79,9 @@ struct Graph {
         return id;
     }
 
-    size_t add_node(const std::string &information, std::vector<size_t>& parents, std::vector<size_t>& children) {
+    size_t add_node(const std::string &information, std::vector<size_t>& parents) {
         size_t id = next_id++;
-        nodes[id] = {id, information, {}, {}};
+        nodes[id] = {id, information, parents};
         return id;
     }
 
@@ -144,27 +149,20 @@ struct Graph {
 
         std::cout << (is_last ? "└─ " : "├─ ");
 
-        std::cout << nodes.at(node_id).id << std::endl;
+
+        std::cout << "Id: " << nodes.at(node_id).id;
+        std::cout << " - Info: " << nodes.at(node_id).information << std::endl;
 
         const auto &children = nodes.at(node_id).children;
         for (size_t i = 0; i < children.size(); ++i) {
             print_tree(children[i], prefix + (is_last ? "   " : "│  "), i == children.size() - 1);
         }
-    }   
+    }
 
     void print_structure() const {
-        // Assuming the root node is the one with no parents
-        size_t root_id = -1;
-        for (const auto &pair : nodes) {
-            if (pair.second.parents.empty()) {
-                root_id = pair.first;
-                break;
-            }
-        }
-        if (root_id == static_cast<size_t>(-1)) {
+        if (nodes.empty())
             throw std::runtime_error("Root node not found.");
-        }
 
-        print_tree(root_id);
+        print_tree(0);
     }
 };
