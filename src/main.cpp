@@ -18,7 +18,7 @@ enum user_options {
     ERASE_TASK = 'e',
     MOVE_TO = 'm',
     GRAPH = 'g',
-    DONE = 'd',
+    CHECK = 'c',
 };
 
 user_options str2option(std::string &str) {
@@ -32,22 +32,22 @@ enum queryModes {
     SENTENCE,
 };
 
-void showMenu() {
+void show_menu() {
     std::cout << '\t' << "Choose either:\n";
-    std::cout << "\t    " << (char)HELP << ", Print this help menu.\n";
-    std::cout << "\t    " << (char)QUIT << ", Quit prgramm.\n";
-    std::cout << "\t    " << (char)LOAD_FILE << ", Load file.\n";
-    std::cout << "\t    " << (char)ADD_TASK << ", Add a task.\n";
-    std::cout << "\t    " << (char)REVISE_TASK << ", Revise a task.\n";
-    std::cout << "\t    " << (char)SPLIT_TASK << ", Split a task.\n";
-    std::cout << "\t    " << (char)ERASE_TASK << ", Erase a task.\n";
-    std::cout << "\t    " << (char)MOVE_TO << ", Move to a task.\n";
-    std::cout << "\t    " << (char)GRAPH << ", Show graph.\n";
-    std::cout << "\t    " << (char)DONE << ", Mark Task as done.\n";
+    std::cout << "\t    " << (char)HELP << ", [P]RINT this help menu.\n";
+    std::cout << "\t    " << (char)QUIT << ", [Q]UIT prgramm.\n";
+    std::cout << "\t    " << (char)LOAD_FILE << ", [L]OAD file.\n";
+    std::cout << "\t    " << (char)ADD_TASK << ", [A]DD a task.\n";
+    std::cout << "\t    " << (char)REVISE_TASK << ", [R]EVISE a task.\n";
+    std::cout << "\t    " << (char)SPLIT_TASK << ", [S]PLIT a task.\n";
+    std::cout << "\t    " << (char)ERASE_TASK << ", [E]RASE a task.\n";
+    std::cout << "\t    " << (char)MOVE_TO << ", [M]OVE to a task.\n";
+    std::cout << "\t    " << (char)GRAPH << ", [S]HOW graph.\n";
+    std::cout << "\t    " << (char)CHECK << ", [C]HECK task as done.\n";
     std::cout << std::flush;
 }
 
-void queryUser(const std::string &prompt, std::vector<std::string> &result, queryModes mode) {
+void query_user(const std::string &prompt, std::vector<std::string> &result, queryModes mode) {
     std::cout << prompt;
     std::string user_input;
     std::getline(std::cin, user_input);
@@ -84,9 +84,9 @@ void queryUser(const std::string &prompt, std::vector<std::string> &result, quer
 
 }
 
-user_options queryUserOption() {
+user_options query_user_option() {
     std::vector<std::string> query;
-    queryUser("> ", query, FIRST_LETTER);
+    query_user("> ", query, FIRST_LETTER);
     return !query.front().empty() ? str2option(query.front()) : NONE;
 }
 
@@ -106,7 +106,7 @@ bool load_file(const std::string &filename, Graph &graph) {
 bool interogate() {
     std::vector<std::string> query;
     std::string prompt = "\tDo you want to save the changes? (yes/no)\n> ";
-    queryUser(prompt, query, FIRST_LETTER);
+    query_user(prompt, query, FIRST_LETTER);
     return query.front() == "y";
 }
 
@@ -115,18 +115,18 @@ bool load_file_from_user_input(Graph &graph) {
         std::cout << "\tSaved!\n";
     }
     std::vector<std::string> query;
-    queryUser("Enter file location: > ", query, FIRST_WORD);
+    query_user("Enter file location: > ", query, FIRST_WORD);
     return load_file(query.front(), graph);
 }
 
 bool add_task(Graph &graph) {
     std::vector<std::string> query;
     if (!graph.next_id) {
-        queryUser("Enter root node information: > ", query, SENTENCE);
+        query_user("Enter root node information: > ", query, SENTENCE);
         graph.add_root(query.front());
     } else {
         std::set<size_t> parents;
-        queryUser("Enter parent node(s): > ", query, ALL_WORDS);
+        query_user("Enter parent node(s): > ", query, ALL_WORDS);
         size_t count = query.size();
         for (const auto &word : query) {
             size_t parent_id;
@@ -147,7 +147,7 @@ bool add_task(Graph &graph) {
         }
         if (count) {
             query.clear();
-            queryUser("Enter node information: > ", query, SENTENCE);
+            query_user("Enter node information: > ", query, SENTENCE);
             graph.add_node(query.front(), parents);
         } else {
             std::cout << "\tMake sure a node has at least one valid parent!\n";
@@ -163,19 +163,19 @@ bool save_to_file(Graph &graph, bool skip_cached_name = false) {
     std::vector<std::string> query;
     if (!state.file_name_cache.empty() && !skip_cached_name) {
         std::string prompt = "\tSave the changes to " + state.file_name_cache + "? (yes/no)\n> ";
-        queryUser(prompt, query, FIRST_LETTER);
+        query_user(prompt, query, FIRST_LETTER);
         if (query.front() == "y") {
             graph.to_json(state.file_name_cache);
             return true;
         }
     }
     query.clear();
-    queryUser("Enter file location: > ", query, FIRST_WORD);
+    query_user("Enter file location: > ", query, FIRST_WORD);
     if (std::ifstream(query.front()).good()) {
         std::string new_file_name = query.front();
         query.clear();
         std::string prompt = "\tThe file " + new_file_name + " already exists. Proceed anyway? (yes/no)\n> ";
-        queryUser(prompt, query, FIRST_LETTER);
+        query_user(prompt, query, FIRST_LETTER);
         if (query.front() == "y") {
             graph.to_json(new_file_name);
             state.file_name_cache = new_file_name;
@@ -191,12 +191,47 @@ bool save_to_file(Graph &graph, bool skip_cached_name = false) {
     return false;
 }
 
+std::string strike_through(const std::string &original_str) {
+    std::string strike_through_str = "\u0336";
+    for (char c : original_str) {
+        strike_through_str += c;
+        strike_through_str += "\u0336";
+    }
+    return strike_through_str;
+}
+
+bool mark_as_done(Graph &graph) {
+    std::vector<std::string> query;
+    query_user("Which task(s) is(are) done? > ", query, ALL_WORDS);
+    std::set<size_t> nodes_id;
+    for (const auto &word : query)
+    {
+        size_t id;
+        std::stringstream stream(word);
+        stream >> id;
+        if (!stream.fail()) {
+            nodes_id.insert(id);
+        }
+    }
+    if (nodes_id.empty()) {
+        std::cout << "\tEmpty input!" << std::endl;
+        return false;
+    }
+    for (const auto &id : nodes_id) {
+        if (graph.nodes.find(id) != graph.nodes.end()) {
+            std::string original_info = graph.nodes.at(id).information;
+            graph.nodes.at(id).information = strike_through(original_info);
+        }
+    }
+    return true;
+}
+
 void execute(user_options &instruction, Graph &graph) {
     bool success = false;
     switch (instruction)
     {
         case HELP:
-            showMenu();
+            show_menu();
             break;
 
         case QUIT:
@@ -250,6 +285,11 @@ void execute(user_options &instruction, Graph &graph) {
                 std::cout << "\tNo graph to show!\n";
             break;
 
+        case CHECK:
+            success = mark_as_done(graph);
+            state.saved = !success;
+            break;
+
         default:
             std::cout << "\tInvalid option!\n";
             break;
@@ -268,11 +308,11 @@ int main(int argc, char *argv[]) {
 
     fresh_start:
     auto instruction = NONE;
-    showMenu();
+    show_menu();
 
     main_loop:
     while (instruction != QUIT) {
-        instruction = queryUserOption();
+        instruction = query_user_option();
         execute(instruction, graph);
     }
 
