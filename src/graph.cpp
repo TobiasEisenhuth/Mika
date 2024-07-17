@@ -79,13 +79,13 @@ struct Graph {
         return id;
     }
 
-    size_t add_node(const std::string &information, std::vector<size_t>& parents) {
+    size_t add_node(const std::string &information, std::set<size_t>& parents) {
         size_t id = next_id++;
         nodes[id] = {id, information, parents};
         return id;
     }
 
-    void remove_node(size_t id) {
+    /*void remove_node(size_t id) {
         if (nodes.find(id) == nodes.end()) {
             throw std::runtime_error("Node not found.");
         }
@@ -99,9 +99,9 @@ struct Graph {
             parents.erase(std::remove(parents.begin(), parents.end(), id), parents.end());
         }
         nodes.erase(id);
-    }
+    }*/
 
-    void switch_parent(size_t node_id, size_t old_parent_id, size_t new_parent_id) {
+    /*void switch_parent(size_t node_id, size_t old_parent_id, size_t new_parent_id) {
         if (nodes.find(node_id) == nodes.end() || nodes.find(old_parent_id) == nodes.end() || nodes.find(new_parent_id) == nodes.end()) {
             throw std::runtime_error("Node or parent not found.");
         }
@@ -110,11 +110,11 @@ struct Graph {
         old_siblings.erase(std::remove(old_siblings.begin(), old_siblings.end(), node_id), old_siblings.end());
         nodes[node_id].parents.erase(std::remove(nodes[node_id].parents.begin(), nodes[node_id].parents.end(), old_parent_id), nodes[node_id].parents.end());
         // Add new parent
-        nodes[node_id].parents.push_back(new_parent_id);
-        nodes[new_parent_id].children.push_back(node_id);
-    }
+        nodes[node_id].parents.insert(new_parent_id);
+        nodes[new_parent_id].children.insert(node_id);
+    }*/
 
-    void add_subtree(const Graph &subtree, size_t attach_to) {
+    /*void add_subtree(const Graph &subtree, size_t attach_to) {
         if (nodes.find(attach_to) == nodes.end()) {
             throw std::runtime_error("Node to attach to not found.");
         }
@@ -133,12 +133,12 @@ struct Graph {
         // Connect the root of the subtree to the node to attach to
         for (const auto &pair : subtree.nodes) {
             if (pair.second.parents.empty()) {
-                nodes[attach_to].children.push_back(pair.second.id);
-                nodes[pair.second.id].parents.push_back(attach_to);
+                nodes[attach_to].children.insert(pair.second.id);
+                nodes[pair.second.id].parents.insert(attach_to);
                 break;
             }
         }
-    }
+    }*/
 
     void print_tree(size_t node_id, const std::string &prefix = "", bool is_last = true) const {
         if (nodes.find(node_id) == nodes.end()) {
@@ -150,12 +150,12 @@ struct Graph {
         std::cout << (is_last ? "└─ " : "├─ ");
 
 
-        std::cout << "Id: " << nodes.at(node_id).id;
+        std::cout << "ID: " << nodes.at(node_id).id;
         std::cout << " - Info: " << nodes.at(node_id).information << std::endl;
 
         const auto &children = nodes.at(node_id).children;
-        for (size_t i = 0; i < children.size(); ++i) {
-            print_tree(children[i], prefix + (is_last ? "   " : "│  "), i == children.size() - 1);
+        for (const auto & child : children) {
+            print_tree(child, prefix + (is_last ? "   " : "│  "), child == *children.rbegin());
         }
     }
 

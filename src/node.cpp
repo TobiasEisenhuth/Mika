@@ -1,9 +1,9 @@
 #include <string>
-#include <vector>
+#include <set>
 #include <nlohmann/json.hpp>
 
-typedef std::vector<size_t> Relations;
-typedef std::vector<size_t> Bunch;
+typedef std::set<size_t> Relations;
+typedef std::set<size_t> Bunch;
 
 struct Node {
     size_t id;

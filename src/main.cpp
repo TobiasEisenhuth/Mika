@@ -18,6 +18,7 @@ enum user_options {
     ERASE_TASK = 'e',
     MOVE_TO = 'm',
     GRAPH = 'g',
+    DONE = 'd',
 };
 
 user_options str2option(std::string &str) {
@@ -42,6 +43,7 @@ void showMenu() {
     std::cout << "\t    " << (char)ERASE_TASK << ", Erase a task.\n";
     std::cout << "\t    " << (char)MOVE_TO << ", Move to a task.\n";
     std::cout << "\t    " << (char)GRAPH << ", Show graph.\n";
+    std::cout << "\t    " << (char)DONE << ", Mark Task as done.\n";
     std::cout << std::flush;
 }
 
@@ -123,19 +125,23 @@ bool add_task(Graph &graph) {
         queryUser("Enter root node information: > ", query, SENTENCE);
         graph.add_root(query.front());
     } else {
-        std::vector<size_t> parents;
+        std::set<size_t> parents;
         queryUser("Enter parent node(s): > ", query, ALL_WORDS);
         size_t count = query.size();
         for (const auto &word : query) {
             size_t parent_id;
             std::stringstream stream(word);
             stream >> parent_id;
+            if (stream.fail()) {
+                std::cout << "\tNode ID needs to be a number!\n";
+                return false;
+            }
             if (graph.nodes.find(parent_id) != graph.nodes.end()) {
-                parents.emplace_back(parent_id);
-                graph.nodes.at(parent_id).children.emplace_back(graph.next_id);
+                parents.emplace(parent_id);
+                graph.nodes.at(parent_id).children.insert(graph.next_id);
             }
             else {
-                std::cout << "\tSkipping id = " << parent_id << " as it does not exist!\n";
+                std::cout << "\tSkipping ID = " << parent_id << " as it does not exist!\n";
                 --count;
             }
         }
@@ -144,8 +150,8 @@ bool add_task(Graph &graph) {
             queryUser("Enter node information: > ", query, SENTENCE);
             graph.add_node(query.front(), parents);
         } else {
-            std::cout << "\tDetached nodes are not supported yet!\n";
             std::cout << "\tMake sure a node has at least one valid parent!\n";
+            return false;
         }
 
     }
