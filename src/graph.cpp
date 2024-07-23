@@ -140,6 +140,11 @@ struct Graph {
         }
     }*/
 
+    void print_node(size_t node_id) const {
+        std::cout << "ID: " << nodes.at(node_id).id;
+        std::cout << " - Info: " << nodes.at(node_id).information << std::endl;
+    }
+
     void print_tree(size_t node_id, const std::string &prefix = "", bool is_last = true) const {
         if (nodes.find(node_id) == nodes.end()) {
             throw std::runtime_error("Node not found.");
@@ -149,9 +154,7 @@ struct Graph {
 
         std::cout << (is_last ? "└─ " : "├─ ");
 
-
-        std::cout << "ID: " << nodes.at(node_id).id;
-        std::cout << " - Info: " << nodes.at(node_id).information << std::endl;
+        print_node(node_id);
 
         const auto &children = nodes.at(node_id).children;
         for (const auto & child : children) {

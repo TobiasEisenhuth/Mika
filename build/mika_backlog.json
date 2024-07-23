@@ -1,10 +1,62 @@
 [
     [
+        10,
+        {
+            "children": [
+                11,
+                12,
+                13
+            ],
+            "id": 10,
+            "information": "Make priority system.",
+            "parents": [
+                8
+            ]
+        }
+    ],
+    [
+        9,
+        {
+            "children": [],
+            "id": 9,
+            "information": "Make previous task ID default for next addition.",
+            "parents": [
+                8
+            ]
+        }
+    ],
+    [
+        8,
+        {
+            "children": [
+                9,
+                10,
+                14
+            ],
+            "id": 8,
+            "information": "Mika Next Gen",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
         15,
         {
             "children": [],
             "id": 15,
             "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶m̶a̶r̶k̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶ ̶a̶s̶ ̶d̶o̶n̶e̶.̶",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        2,
+        {
+            "children": [],
+            "id": 2,
+            "information": "Add human-readable and diff-able file dump of graph.",
             "parents": [
                 0
             ]
@@ -85,17 +137,6 @@
         }
     ],
     [
-        2,
-        {
-            "children": [],
-            "id": 2,
-            "information": "Add human-readable and diff-able file dump of graph.",
-            "parents": [
-                0
-            ]
-        }
-    ],
-    [
         3,
         {
             "children": [],
@@ -111,7 +152,7 @@
         {
             "children": [],
             "id": 4,
-            "information": "Implement revising tasks.",
+            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶r̶e̶v̶i̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
             "parents": [
                 0
             ]
@@ -133,7 +174,7 @@
         {
             "children": [],
             "id": 6,
-            "information": "Implement erasing tasks.",
+            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶e̶r̶a̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
             "parents": [
                 0
             ]
@@ -147,47 +188,6 @@
             "information": "Implement moving tasks.",
             "parents": [
                 0
-            ]
-        }
-    ],
-    [
-        8,
-        {
-            "children": [
-                9,
-                10,
-                14
-            ],
-            "id": 8,
-            "information": "Mika Next Gen",
-            "parents": [
-                0
-            ]
-        }
-    ],
-    [
-        9,
-        {
-            "children": [],
-            "id": 9,
-            "information": "Make previous task ID default for next addition.",
-            "parents": [
-                8
-            ]
-        }
-    ],
-    [
-        10,
-        {
-            "children": [
-                11,
-                12,
-                13
-            ],
-            "id": 10,
-            "information": "Make priority system.",
-            "parents": [
-                8
             ]
         }
     ]

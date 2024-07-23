@@ -133,7 +133,7 @@ bool add_task(Graph &graph) {
             std::stringstream stream(word);
             stream >> parent_id;
             if (stream.fail()) {
-                std::cout << "\tNode ID needs to be a number!\n";
+                std::cout << "\tNode ID has to be a number!" << std::endl;
                 return false;
             }
             if (graph.nodes.find(parent_id) != graph.nodes.end()) {
@@ -147,10 +147,10 @@ bool add_task(Graph &graph) {
         }
         if (count) {
             query.clear();
-            query_user("Enter node information: > ", query, SENTENCE);
+            query_user("Enter task information: > ", query, SENTENCE);
             graph.add_node(query.front(), parents);
         } else {
-            std::cout << "\tMake sure a node has at least one valid parent!\n";
+            std::cout << "\tMake sure a task has at least one valid parent!" << std::endl;
             return false;
         }
 
@@ -211,6 +211,8 @@ bool mark_as_done(Graph &graph) {
         stream >> id;
         if (!stream.fail()) {
             nodes_id.insert(id);
+        } else {
+            std::cout << "\tTask ID has to be a number! " << strike_through(word) << "\n";
         }
     }
     if (nodes_id.empty()) {
@@ -224,6 +226,70 @@ bool mark_as_done(Graph &graph) {
         }
     }
     return true;
+}
+
+bool revise_task(Graph &graph) {
+    std::vector<std::string> query;
+    query_user("Enter task ID to be revised: > ", query, FIRST_WORD);
+    size_t node_id;
+    std::stringstream stream(query.front());
+    stream >> node_id;
+    if (stream.fail()) {
+        std::cout << "\tTask ID has to be a number! " << strike_through(query.front()) << "\n";
+        return false;
+    }
+    if (graph.nodes.find(node_id) != graph.nodes.end()) {
+        std::cout << "\tTask in question:\n";
+        std::cout << "\t└─ ";
+        graph.print_node(node_id);
+        query.clear();
+        query_user("Enter revised task information: > ", query, SENTENCE);
+        graph.nodes.at(node_id).information = query.front();
+    } else {
+        std::cout << "\tTask with ID = " << node_id << " does not exist!" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool erase_task(Graph &graph) {
+    std::vector<std::string> query;
+    query_user("Which task(s) should be erased? > ", query, ALL_WORDS);
+    std::set<size_t> nodes_id;
+    for (const auto &word : query)
+    {
+        size_t id;
+        std::stringstream stream(word);
+        stream >> id;
+        if (!stream.fail()) {
+            nodes_id.insert(id);
+        } else {
+            std::cout << "\tTask ID has to be a number! " << strike_through(word) << "\n";
+        }
+    }
+    if (nodes_id.empty()) {
+        std::cout << "\tEmpty input!" << std::endl;
+        return false;
+    }
+    bool success = false;
+    for (const auto &id : nodes_id) {
+        if (graph.nodes.find(id) != graph.nodes.end()) {
+            if (graph.nodes.at(id).children.empty()) {
+                for (const auto &parent_id : graph.nodes.at(id).parents) {
+                    graph.nodes.at(parent_id).children.erase(id);
+                }
+                graph.nodes.erase(id);
+                success = true;
+            } else {
+                std::cout << "\tCurrently only deletion of leaf tasks is supported! (id=" << id << ")\n";
+            }
+        } else {
+            std::cout << "\tTask with ID = " << id << " does not exist!\n";
+        }
+    }
+    std::cout << std::flush;
+    return success;
 }
 
 void execute(user_options &instruction, Graph &graph) {
@@ -251,31 +317,29 @@ void execute(user_options &instruction, Graph &graph) {
 
         case ADD_TASK:
             success = add_task(graph);
-            state.saved = !success;
+            state.saved = !success && state.saved;
             break;
 
         case REVISE_TASK:
-            std::cout << "\tTask revised!\n";
-            success = [](){return true;};
-            state.saved = !success;
+            success = revise_task(graph);
+            state.saved = !success && state.saved;
             break;
 
         case SPLIT_TASK:
             std::cout << "\tSplit task!\n";
-            //bool success = add_task();
-            //state.loaded = success;
+            //success = add_task();
+            //state.saved = !success && state.saved;
             break;
 
         case ERASE_TASK:
-            std::cout << "\tErased task!\n";
-            //bool success = add_task();
-            //state.loaded = success;
+            success = erase_task(graph);
+            state.saved = !success && state.saved;
             break;
 
         case MOVE_TO:
             std::cout << "\tMoved to task!\n";
-            //bool success = add_task();
-            //state.loaded = success;
+            //success = add_task();
+            //state.saved = !success && state.saved;
             break;
 
         case GRAPH:
@@ -287,7 +351,7 @@ void execute(user_options &instruction, Graph &graph) {
 
         case CHECK:
             success = mark_as_done(graph);
-            state.saved = !success;
+            state.saved = !success && state.saved;
             break;
 
         default:

@@ -22,9 +22,9 @@ Run the `main` binary with or without a compatible `.json` file as argument. E.g
    ├─ ID: 1 - Info: ̶P̶r̶e̶v̶e̶n̶t̶ ̶n̶o̶n̶-̶i̶n̶t̶ ̶i̶n̶p̶u̶t̶ ̶t̶o̶ ̶b̶e̶ ̶c̶a̶s̶t̶ ̶i̶n̶t̶o̶ ̶I̶D̶.̶
    ├─ ID: 2 - Info: Add human-readable and diff-able file dump of graph.
    ├─ ID: 3 - Info: Add compatibility to different .json file versions on load.
-   ├─ ID: 4 - Info: Implement revising tasks.
+   ├─ ID: 4 - Info: ̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶r̶e̶v̶i̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶
    ├─ ID: 5 - Info: Implement splitting tasks.
-   ├─ ID: 6 - Info: Implement erasing tasks.
+   ├─ ID: 6 - Info: ̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶e̶r̶a̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶
    ├─ ID: 7 - Info: Implement moving tasks.
    ├─ ID: 8 - Info: Mika Next Gen
    │  ├─ ID: 9 - Info: Make previous task ID default for next addition.
