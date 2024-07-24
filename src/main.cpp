@@ -34,16 +34,16 @@ enum queryModes {
 
 void show_menu() {
     std::cout << '\t' << "Choose either:\n";
-    std::cout << "\t    " << (char)HELP << ", [P]RINT this help menu.\n";
-    std::cout << "\t    " << (char)QUIT << ", [Q]UIT prgramm.\n";
-    std::cout << "\t    " << (char)LOAD_FILE << ", [L]OAD file.\n";
-    std::cout << "\t    " << (char)ADD_TASK << ", [A]DD a task.\n";
-    std::cout << "\t    " << (char)REVISE_TASK << ", [R]EVISE a task.\n";
-    std::cout << "\t    " << (char)SPLIT_TASK << ", [S]PLIT a task.\n";
-    std::cout << "\t    " << (char)ERASE_TASK << ", [E]RASE a task.\n";
-    std::cout << "\t    " << (char)MOVE_TO << ", [M]OVE to a task.\n";
-    std::cout << "\t    " << (char)GRAPH << ", [S]HOW graph.\n";
-    std::cout << "\t    " << (char)CHECK << ", [C]HECK task as done.\n";
+    std::cout << "\t    [" << (char)HELP << "]elp menu\n";
+    std::cout << "\t    [" << (char)QUIT << "]uit prgramm\n";
+    std::cout << "\t    [" << (char)LOAD_FILE << "]oad file\n";
+    std::cout << "\t    [" << (char)ADD_TASK << "]dd task\n";
+    std::cout << "\t    [" << (char)REVISE_TASK << "]evise task\n";
+    std::cout << "\t    [" << (char)SPLIT_TASK << "]plit task\n";
+    std::cout << "\t    [" << (char)ERASE_TASK << "]rase task\n";
+    std::cout << "\t    [" << (char)MOVE_TO << "]ove to task\n";
+    std::cout << "\t    [" << (char)GRAPH << "]raph\n";
+    std::cout << "\t    [" << (char)CHECK << "]heck task as done\n";
     std::cout << std::flush;
 }
 
