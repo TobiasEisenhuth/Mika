@@ -47,6 +47,15 @@ void show_menu() {
     std::cout << std::flush;
 }
 
+std::string strike_through(const std::string &original_str) {
+    std::string strike_through_str = "\u0336";
+    for (char c : original_str) {
+        strike_through_str += c;
+        strike_through_str += "\u0336";
+    }
+    return strike_through_str;
+}
+
 void query_user(const std::string &prompt, std::vector<std::string> &result, queryModes mode) {
     std::cout << prompt;
     std::string user_input;
@@ -88,6 +97,27 @@ user_options query_user_option() {
     std::vector<std::string> query;
     query_user("> ", query, FIRST_LETTER);
     return !query.front().empty() ? str2option(query.front()) : NONE;
+}
+
+bool query_unique_id(const std::string &prompt, std::set<size_t> &nodes_id) {
+    std::vector<std::string> query;
+    query_user(prompt, query, ALL_WORDS);
+    for (const auto &word : query)
+    {
+        size_t id;
+        std::stringstream stream(word);
+        stream >> id;
+        if (!stream.fail()) {
+            nodes_id.insert(id);
+        } else {
+            std::cout << "\tTask ID has to be a number! " << strike_through(word) << "\n";
+        }
+    }
+    if (nodes_id.empty()) {
+        std::cout << "\tEmpty input!" << std::endl;
+        return false;
+    }
+    return true;
 }
 
 bool load_file(const std::string &filename, Graph &graph) {
@@ -159,6 +189,66 @@ bool add_task(Graph &graph) {
     return true;
 }
 
+bool mark_as_done(Graph &graph) {
+    std::set<size_t> nodes_id;
+    bool success = query_unique_id("Which task(s) is(are) done? > ", nodes_id);
+    size_t skipped_id_count = 0;
+    for (const auto &id : nodes_id) {
+        if (graph.nodes.find(id) != graph.nodes.end()) {
+            std::string original_info = graph.nodes.at(id).information;
+            graph.nodes.at(id).information = strike_through(original_info);
+        } else {
+            std::cout << "\tSkipping ID = " << id << " as it does not exist!" << std::endl;
+            ++skipped_id_count;
+        }
+    }
+    return nodes_id.size() == skipped_id_count ? false : success;
+}
+
+bool revise_task(Graph &graph) {
+    std::set<size_t> nodes_id;
+    bool success = query_unique_id("Enter task ID to be revised: > ", nodes_id);
+    size_t skipped_id_count = 0;
+    std::vector<std::string> query;
+    for (const auto &id : nodes_id) {
+        if (graph.nodes.find(id) != graph.nodes.end()) {
+            std::cout << "\tTask in revision:\n";
+            std::cout << "\t└─ ";
+            graph.print_node(id);
+            query.clear();
+            query_user("Enter revised task information: > ", query, SENTENCE);
+            graph.nodes.at(id).information = query.front();
+        } else {
+            std::cout << "\tSkipping ID = " << id << " as it does not exist!" << std::endl;
+            ++skipped_id_count;
+        }
+    }
+    return nodes_id.size() == skipped_id_count ? false : success;
+}
+
+bool erase_task(Graph &graph) {
+    std::set<size_t> nodes_id;
+    bool success = query_unique_id("Which task(s) should be erased? > ", nodes_id);
+    size_t skipped_id_count = 0;
+    for (const auto &id : nodes_id) {
+        if (graph.nodes.find(id) != graph.nodes.end()) {
+            if (graph.nodes.at(id).children.empty()) {
+                for (const auto &parent_id : graph.nodes.at(id).parents) {
+                    graph.nodes.at(parent_id).children.erase(id);
+                }
+                graph.nodes.erase(id);
+            } else {
+                std::cout << "\tCurrently only deletion of leaf tasks are supported! (id=" << id << ")" << std::endl;
+                ++skipped_id_count;
+            }
+        } else {
+            std::cout << "\tSkipping ID = " << id << " as it does not exist!" << std::endl;
+            ++skipped_id_count;
+        }
+    }
+    return nodes_id.size() == skipped_id_count ? false : success;
+}
+
 bool save_to_file(Graph &graph, bool skip_cached_name = false) {
     std::vector<std::string> query;
     if (!state.file_name_cache.empty() && !skip_cached_name) {
@@ -189,107 +279,6 @@ bool save_to_file(Graph &graph, bool skip_cached_name = false) {
     }
 
     return false;
-}
-
-std::string strike_through(const std::string &original_str) {
-    std::string strike_through_str = "\u0336";
-    for (char c : original_str) {
-        strike_through_str += c;
-        strike_through_str += "\u0336";
-    }
-    return strike_through_str;
-}
-
-bool mark_as_done(Graph &graph) {
-    std::vector<std::string> query;
-    query_user("Which task(s) is(are) done? > ", query, ALL_WORDS);
-    std::set<size_t> nodes_id;
-    for (const auto &word : query)
-    {
-        size_t id;
-        std::stringstream stream(word);
-        stream >> id;
-        if (!stream.fail()) {
-            nodes_id.insert(id);
-        } else {
-            std::cout << "\tTask ID has to be a number! " << strike_through(word) << "\n";
-        }
-    }
-    if (nodes_id.empty()) {
-        std::cout << "\tEmpty input!" << std::endl;
-        return false;
-    }
-    for (const auto &id : nodes_id) {
-        if (graph.nodes.find(id) != graph.nodes.end()) {
-            std::string original_info = graph.nodes.at(id).information;
-            graph.nodes.at(id).information = strike_through(original_info);
-        }
-    }
-    return true;
-}
-
-bool revise_task(Graph &graph) {
-    std::vector<std::string> query;
-    query_user("Enter task ID to be revised: > ", query, FIRST_WORD);
-    size_t node_id;
-    std::stringstream stream(query.front());
-    stream >> node_id;
-    if (stream.fail()) {
-        std::cout << "\tTask ID has to be a number! " << strike_through(query.front()) << "\n";
-        return false;
-    }
-    if (graph.nodes.find(node_id) != graph.nodes.end()) {
-        std::cout << "\tTask in question:\n";
-        std::cout << "\t└─ ";
-        graph.print_node(node_id);
-        query.clear();
-        query_user("Enter revised task information: > ", query, SENTENCE);
-        graph.nodes.at(node_id).information = query.front();
-    } else {
-        std::cout << "\tTask with ID = " << node_id << " does not exist!" << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
-bool erase_task(Graph &graph) {
-    std::vector<std::string> query;
-    query_user("Which task(s) should be erased? > ", query, ALL_WORDS);
-    std::set<size_t> nodes_id;
-    for (const auto &word : query)
-    {
-        size_t id;
-        std::stringstream stream(word);
-        stream >> id;
-        if (!stream.fail()) {
-            nodes_id.insert(id);
-        } else {
-            std::cout << "\tTask ID has to be a number! " << strike_through(word) << "\n";
-        }
-    }
-    if (nodes_id.empty()) {
-        std::cout << "\tEmpty input!" << std::endl;
-        return false;
-    }
-    bool success = false;
-    for (const auto &id : nodes_id) {
-        if (graph.nodes.find(id) != graph.nodes.end()) {
-            if (graph.nodes.at(id).children.empty()) {
-                for (const auto &parent_id : graph.nodes.at(id).parents) {
-                    graph.nodes.at(parent_id).children.erase(id);
-                }
-                graph.nodes.erase(id);
-                success = true;
-            } else {
-                std::cout << "\tCurrently only deletion of leaf tasks is supported! (id=" << id << ")\n";
-            }
-        } else {
-            std::cout << "\tTask with ID = " << id << " does not exist!\n";
-        }
-    }
-    std::cout << std::flush;
-    return success;
 }
 
 void execute(user_options &instruction, Graph &graph) {
