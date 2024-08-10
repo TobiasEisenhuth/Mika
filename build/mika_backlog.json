@@ -1,5 +1,62 @@
 [
     [
+        17,
+        {
+            "children": [],
+            "id": 17,
+            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶s̶p̶l̶i̶t̶t̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶ ̶2̶.̶",
+            "parents": [
+                5
+            ]
+        }
+    ],
+    [
+        16,
+        {
+            "children": [],
+            "id": 16,
+            "information": "Implement forking tasks.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        7,
+        {
+            "children": [],
+            "id": 7,
+            "information": "Implement moving tasks.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        6,
+        {
+            "children": [],
+            "id": 6,
+            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶e̶r̶a̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        5,
+        {
+            "children": [
+                17
+            ],
+            "id": 5,
+            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶s̶p̶l̶i̶t̶t̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶ ̶1̶.̶",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
         10,
         {
             "children": [
@@ -129,7 +186,8 @@
                 6,
                 7,
                 8,
-                15
+                15,
+                16
             ],
             "id": 0,
             "information": "Mika Backlog",
@@ -153,39 +211,6 @@
             "children": [],
             "id": 4,
             "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶r̶e̶v̶i̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
-            "parents": [
-                0
-            ]
-        }
-    ],
-    [
-        5,
-        {
-            "children": [],
-            "id": 5,
-            "information": "Implement splitting tasks.",
-            "parents": [
-                0
-            ]
-        }
-    ],
-    [
-        6,
-        {
-            "children": [],
-            "id": 6,
-            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶e̶r̶a̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
-            "parents": [
-                0
-            ]
-        }
-    ],
-    [
-        7,
-        {
-            "children": [],
-            "id": 7,
-            "information": "Implement moving tasks.",
             "parents": [
                 0
             ]

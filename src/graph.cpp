@@ -7,6 +7,13 @@
 struct Graph {
     std::unordered_map<size_t, Node> nodes;
     size_t next_id = 0; // ID counter
+    size_t most_recently_added_id = next_id;
+
+    size_t get_next_id() {
+        most_recently_added_id = next_id;
+        ++next_id;
+        return most_recently_added_id;
+    }
 
     void reset() {
         nodes.clear();
@@ -74,13 +81,13 @@ struct Graph {
     }
 
     size_t add_root(const std::string &information) {
-        size_t id = next_id++;
+        size_t id = get_next_id();
         nodes[id] = {id, information, {}, {}};
         return id;
     }
 
     size_t add_node(const std::string &information, std::set<size_t>& parents) {
-        size_t id = next_id++;
+        size_t id = get_next_id();
         nodes[id] = {id, information, parents};
         return id;
     }
