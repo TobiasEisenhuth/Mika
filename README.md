@@ -5,15 +5,17 @@ A Micro Tasking application that helps to break down WORK into easy to execute T
 This project is still in its infantile stage and constantly changing at a fast pace. Therefore, the only branch, main, is almost certainly guaranteed to be rebased continuously until the overhead of feature branches are justified!
 
 # Build
-Install dependencies and use the build script `compile.sh` within the build folder.
+Install dependencies - probably something along the lines of:
 
-**>_** `cd build/`<br />
+**>_** `sudo apt install nlohmann-json3-dev`
+
+Next, change directories to the projects build folder and use the build script `compile.sh` from within the build folder.
+
 **>_** `./compile.sh`
 
 # Run
-Run the `main` binary with or without a compatible `.json` file as argument. E.g. the included `mika_backlog.json` file within the build folder.
+Run the `main` binary which should appear alongside the build script, with or without a compatible `.json` file as argument. E.g. the included `mika_backlog.json` file within the build folder.
 
-**>_** `cd build/`<br />
 **>_** `./main mika_backlog.json`
 
 # Backlog
