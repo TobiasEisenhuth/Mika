@@ -46,6 +46,16 @@ void query_user(const std::string &prompt, std::vector<std::string> &result, que
     std::cout << prompt;
     std::string user_input;
     std::getline(std::cin, user_input);
+
+    const auto first_non_white_space = user_input.find_first_not_of(' ');
+    user_input.erase(user_input.begin(), user_input.begin() + first_non_white_space);
+    const auto last_non_white_space = user_input.find_last_not_of(' ');
+    user_input.erase(user_input.begin() + last_non_white_space + 1, user_input.end());
+
+    const auto consecutive_white_space = [](char lhs, char rhs){return (lhs == ' ' && rhs == ' ');};
+    const auto end_of_unique_section = std::unique(user_input.begin(), user_input.end(), consecutive_white_space);
+    user_input.erase(end_of_unique_section, user_input.end());
+
     switch (mode)
     {
     case FIRST_LETTER:
@@ -90,6 +100,10 @@ bool query_unique_id(const std::string &prompt, std::set<size_t> &nodes_id) {
     query_user(prompt, query, ALL_WORDS);
     for (const auto &word : query)
     {
+        if (int(word.at(0)) == 0) {
+            std::cout << "\tEmpty input!" << std::endl;
+            return false;
+        }
         size_t id;
         std::stringstream stream(word);
         stream >> id;
@@ -98,10 +112,6 @@ bool query_unique_id(const std::string &prompt, std::set<size_t> &nodes_id) {
         } else {
             std::cout << "\tTask ID has to be a number! " << strike_through(word) << "\n";
         }
-    }
-    if (nodes_id.empty()) {
-        std::cout << "\tEmpty input!" << std::endl;
-        return false;
     }
     return true;
 }
@@ -255,7 +265,34 @@ bool split_task(Graph &graph) {
 }
 
 bool fork_task(Graph &graph) {
-    return false;
+    std::set<size_t> nodes_id;
+    bool success = query_unique_id("Enter task ID to be forked: > ", nodes_id);
+    size_t skipped_id_count = 0;
+    std::vector<std::string> query;
+    for (const auto &id : nodes_id) {
+        if (graph.nodes.find(id) != graph.nodes.end()) {
+            std::cout << "\tTask in forking:\n";
+            std::cout << "\t└─ ";
+            graph.print_node(id);
+            std::cout << "Fork 1 - ";
+            query.clear();
+            query_user("Enter task information: > ", query, SENTENCE);
+            graph.nodes.at(id).information = query.front();
+            auto original_childern = graph.nodes.at(id).children;
+            auto original_parents = graph.nodes.at(id).parents;
+            std::set<std::string> original_parents_as_string;
+            for (const auto &current_parent_id : original_parents) {
+                original_parents_as_string.emplace(std::to_string(current_parent_id));
+            }
+            std::cout << "Fork 2 - ";
+            add_task(graph, original_parents_as_string);
+            graph.nodes.at(graph.most_recently_added_id).children = original_childern;
+        } else {
+            std::cout << "\tSkipping ID = " << id << " as it does not exist!" << std::endl;
+            ++skipped_id_count;
+        }
+    }
+    return nodes_id.size() == skipped_id_count ? false : success;
 }
 
 bool revise_task(Graph &graph) {
@@ -349,9 +386,8 @@ void execute(user_options &instruction, Graph &graph) {
             break;
 
         case FORK_TASK:
-            std::cout << "\tFork task!\n";
-            //success = add_task();
-            //state.saved = !success && state.saved;
+            success = fork_task(graph);
+            state.saved = !success && state.saved;
             break;
 
         case REVISE_TASK:

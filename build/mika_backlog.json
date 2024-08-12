@@ -1,5 +1,69 @@
 [
     [
+        4,
+        {
+            "children": [],
+            "id": 4,
+            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶r̶e̶v̶i̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        3,
+        {
+            "children": [],
+            "id": 3,
+            "information": "Add compatibility to different .json file versions on load.",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
+        0,
+        {
+            "children": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                15,
+                16
+            ],
+            "id": 0,
+            "information": "Mika Backlog",
+            "parents": []
+        }
+    ],
+    [
+        13,
+        {
+            "children": [],
+            "id": 13,
+            "information": "Show most urgent as well as most important tasks.",
+            "parents": [
+                10
+            ]
+        }
+    ],
+    [
+        1,
+        {
+            "children": [],
+            "id": 1,
+            "information": "̶P̶r̶e̶v̶e̶n̶t̶ ̶n̶o̶n̶-̶i̶n̶t̶ ̶i̶n̶p̶u̶t̶ ̶t̶o̶ ̶b̶e̶ ̶c̶a̶s̶t̶ ̶i̶n̶t̶o̶ ̶I̶D̶.̶",
+            "parents": [
+                0
+            ]
+        }
+    ],
+    [
         17,
         {
             "children": [],
@@ -15,7 +79,7 @@
         {
             "children": [],
             "id": 16,
-            "information": "Implement forking tasks.",
+            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶f̶o̶r̶k̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
             "parents": [
                 0
             ]
@@ -149,70 +213,6 @@
             "information": "Show metadata of work (stats).",
             "parents": [
                 8
-            ]
-        }
-    ],
-    [
-        1,
-        {
-            "children": [],
-            "id": 1,
-            "information": "̶P̶r̶e̶v̶e̶n̶t̶ ̶n̶o̶n̶-̶i̶n̶t̶ ̶i̶n̶p̶u̶t̶ ̶t̶o̶ ̶b̶e̶ ̶c̶a̶s̶t̶ ̶i̶n̶t̶o̶ ̶I̶D̶.̶",
-            "parents": [
-                0
-            ]
-        }
-    ],
-    [
-        13,
-        {
-            "children": [],
-            "id": 13,
-            "information": "Show most urgent as well as most important tasks.",
-            "parents": [
-                10
-            ]
-        }
-    ],
-    [
-        0,
-        {
-            "children": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                15,
-                16
-            ],
-            "id": 0,
-            "information": "Mika Backlog",
-            "parents": []
-        }
-    ],
-    [
-        3,
-        {
-            "children": [],
-            "id": 3,
-            "information": "Add compatibility to different .json file versions on load.",
-            "parents": [
-                0
-            ]
-        }
-    ],
-    [
-        4,
-        {
-            "children": [],
-            "id": 4,
-            "information": "̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶r̶e̶v̶i̶s̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶",
-            "parents": [
-                0
             ]
         }
     ]
