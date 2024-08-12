@@ -35,5 +35,5 @@ Run the `main` binary with or without a compatible `.json` file as argument. E.g
    │  │  └─ ID: 13 - Info: Show most urgent as well as most important tasks.
    │  └─ ID: 14 - Info: Show metadata of work (stats).
    ├─ ID: 15 - Info: ̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶m̶a̶r̶k̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶ ̶a̶s̶ ̶d̶o̶n̶e̶.̶
-   └─ ID: 16 - Info: Implement forking tasks.
+   └─ ID: 16 - Info: ̶I̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶f̶o̶r̶k̶i̶n̶g̶ ̶t̶a̶s̶k̶s̶.̶
 ```
