@@ -149,7 +149,9 @@ struct Graph {
 
     void print_node(size_t node_id) const {
         std::cout << "ID: " << nodes.at(node_id).id;
-        std::cout << " - Info: " << nodes.at(node_id).information << std::endl;
+        std::cout << " - Info: " << nodes.at(node_id).information;
+        std::cout << " - Priority: " << nodes.at(node_id).properties.priority_score;
+        std::cout << " - Deadline:" << ctime(&nodes.at(node_id).properties.deadline);
     }
 
     void print_tree(size_t node_id, const std::string &prefix = "", bool is_last = true) const {
