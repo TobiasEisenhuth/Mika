@@ -1,13 +1,35 @@
 #include <iostream>
 #include "graph.cpp"
+#include <sstream>
+#include <filesystem>
+
+// Macros for disabling and re-enabling std::cout
+#define DISABLE_STDOUT() std::ostringstream __disabled_stdout__; \
+    auto* __original_cout_buffer__ = std::cout.rdbuf(); \
+    std::cout.rdbuf(__disabled_stdout__.rdbuf());
+
+#define ENABLE_STDOUT() std::cout.rdbuf(__original_cout_buffer__);
+
+size_t test_branches = 3;
+size_t test_coverage = 0;
+
+void test_case_needs_saving(Graph &graph, std::string test_file_name="mika_test.json");
+void test_case_add_task(Graph &graph);
+void test_case_load_file(Graph &graph
+    , std::string test_file_name="mika_test.json"
+    , bool test_file_should_exist=true
+    , bool discard_changes=false
+    , bool override_current=false
+    , bool override_existing=false
+    , bool clear_traces=false);
 
 struct program_state {
     bool loaded = false;
     std::string file_name_cache;
-    bool saved = true;
+    bool synced_to_file = true;
 } state;
 
-enum user_options {
+enum class user_options {
     NONE,
     HELP = 'h',
     LOAD_FILE = 'l',
@@ -20,6 +42,7 @@ enum user_options {
     CHECK = 'c',
     GRAPH = 'g',
     QUIT = 'q',
+    TEST = 't',
 };
 
 user_options str2option(std::string &str) {
@@ -92,7 +115,7 @@ void query_user(const std::string &prompt, std::vector<std::string> &result, que
 user_options query_user_option() {
     std::vector<std::string> query;
     query_user("> ", query, FIRST_LETTER);
-    return !query.front().empty() ? str2option(query.front()) : NONE;
+    return !query.front().empty() ? str2option(query.front()) : user_options::NONE;
 }
 
 bool query_unique_id(const std::string &prompt, std::set<size_t> &nodes_id) {
@@ -123,15 +146,16 @@ bool save_to_file(Graph &graph, bool skip_cached_name = false) {
         query_user(prompt, query, FIRST_LETTER);
         if (query.front() == "y") {
             graph.to_json(state.file_name_cache);
+            std::cout << "\tSaved to file!\n";
             return true;
         }
     }
     query.clear();
-    query_user("Enter file location: > ", query, FIRST_WORD);
+    query_user("Enter file location for saving: > ", query, FIRST_WORD);
     if (std::ifstream(query.front()).good()) {
         std::string new_file_name = query.front();
         query.clear();
-        std::string prompt = "\tThe file " + new_file_name + " already exists. Proceed anyway? (yes/no)\n> ";
+        std::string prompt = "\tThe file " + new_file_name + " already exists. Overwrite file? (yes/no)\n> ";
         query_user(prompt, query, FIRST_LETTER);
         if (query.front() == "y") {
             graph.to_json(new_file_name);
@@ -157,17 +181,18 @@ bool interogate() {
 
 void show_menu() {
     std::cout << '\t' << "Choose either:\n";
-    std::cout << "\t    [" << (char)HELP << "]elp menu\n";
-    std::cout << "\t    [" << (char)LOAD_FILE << "]oad file\n";
-    std::cout << "\t    [" << (char)ADD_TASK << "]dd task\n";
-    std::cout << "\t    [" << (char)SPLIT_TASK << "]plit task\n";
-    std::cout << "\t    [" << (char)FORK_TASK << "]ork task\n";
-    std::cout << "\t    [" << (char)REVISE_TASK << "]evise task\n";
-    std::cout << "\t    [" << (char)ERASE_TASK << "]rase task\n";
-    std::cout << "\t    [" << (char)MOVE_TASK << "]ove task\n";
-    std::cout << "\t    [" << (char)CHECK << "]heck task as done\n";
-    std::cout << "\t    [" << (char)GRAPH << "]raph\n";
-    std::cout << "\t    [" << (char)QUIT << "]uit prgramm\n";
+    std::cout << "\t    [" << (char)user_options::HELP << "]elp menu\n";
+    std::cout << "\t    [" << (char)user_options::LOAD_FILE << "]oad file\n";
+    std::cout << "\t    [" << (char)user_options::ADD_TASK << "]dd task\n";
+    std::cout << "\t    [" << (char)user_options::SPLIT_TASK << "]plit task\n";
+    std::cout << "\t    [" << (char)user_options::FORK_TASK << "]ork task\n";
+    std::cout << "\t    [" << (char)user_options::REVISE_TASK << "]evise task\n";
+    std::cout << "\t    [" << (char)user_options::ERASE_TASK << "]rase task\n";
+    std::cout << "\t    [" << (char)user_options::MOVE_TASK << "]ove task\n";
+    std::cout << "\t    [" << (char)user_options::CHECK << "]heck task as done\n";
+    std::cout << "\t    [" << (char)user_options::GRAPH << "]raph\n";
+    std::cout << "\t    [" << (char)user_options::QUIT << "]uit prgramm\n";
+    std::cout << "\t    [" << (char)user_options::TEST << "]est\n";
     std::cout << std::flush;
 }
 
@@ -185,11 +210,11 @@ bool load_file(const std::string &filename, Graph &graph) {
 }
 
 bool load_file_from_user_input(Graph &graph) {
-    if (!state.saved && interogate()) {
-        std::cout << "\tSaved!\n";
+    if (!state.synced_to_file && interogate()) {
+        save_to_file(graph);
     }
     std::vector<std::string> query;
-    query_user("Enter file location: > ", query, FIRST_WORD);
+    query_user("Enter file location for loading: > ", query, FIRST_WORD);
     return load_file(query.front(), graph);
 }
 
@@ -361,68 +386,76 @@ bool mark_as_done(Graph &graph) {
 
 void execute(user_options &instruction, Graph &graph) {
     bool success = false;
-    switch (instruction)
-    {
-        case HELP:
+    switch (instruction) {
+        case user_options::HELP:
             show_menu();
             break;
 
-        case NONE:
+        case user_options::NONE:
             break;
 
-        case LOAD_FILE:
+        case user_options::LOAD_FILE:
             success = load_file_from_user_input(graph);
-            state.loaded = success;
+            state.loaded = state.loaded || success;
+            state.synced_to_file = state.synced_to_file || success;
             break;
 
-        case ADD_TASK:
+        case user_options::ADD_TASK:
             success = add_task(graph);
-            state.saved = !success && state.saved;
+            state.synced_to_file = !success && state.synced_to_file;
             break;
 
-        case SPLIT_TASK:
+        case user_options::SPLIT_TASK:
             success = split_task(graph);
-            state.saved = !success && state.saved;
+            state.synced_to_file = !success && state.synced_to_file;
             break;
 
-        case FORK_TASK:
+        case user_options::FORK_TASK:
             success = fork_task(graph);
-            state.saved = !success && state.saved;
+            state.synced_to_file = !success && state.synced_to_file;
             break;
 
-        case REVISE_TASK:
+        case user_options::REVISE_TASK:
             success = revise_task(graph);
-            state.saved = !success && state.saved;
+            state.synced_to_file = !success && state.synced_to_file;
             break;
 
-        case ERASE_TASK:
+        case user_options::ERASE_TASK:
             success = erase_task(graph);
-            state.saved = !success && state.saved;
+            state.synced_to_file = !success && state.synced_to_file;
             break;
 
-        case MOVE_TASK:
+        case user_options::MOVE_TASK:
             std::cout << "\tMoved task!\n";
             //success = add_task();
-            //state.saved = !success && state.saved;
+            //state.synced_to_file = !success && state.synced_to_file;
             break;
 
-        case CHECK:
+        case user_options::CHECK:
             success = mark_as_done(graph);
-            state.saved = !success && state.saved;
+            state.synced_to_file = !success && state.synced_to_file;
             break;
 
-        case GRAPH:
-            if (state.loaded || !state.saved)
-                graph.print_structure();
-            else
+        case user_options::GRAPH:
+            if (!state.loaded && state.synced_to_file)
                 std::cout << "\tNo graph to show!\n";
+            else if (graph.nodes.empty())
+                std::cout << "\tEmpty graph!\n";
+            else
+                graph.print_structure();
             break;
 
-        case QUIT:
-            if (!state.saved && interogate()) {
+        case user_options::QUIT:
+            if (!state.synced_to_file && interogate()) {
                 save_to_file(graph);
-                std::cout << "\tSaved!\n";
             }
+            break;
+
+        case user_options::TEST:
+            std::cout << "----> Tests running ...\n";
+            test_case_load_file(graph);
+            test_case_add_task(graph);
+            std::cout << "<---- Tests done!\n";
             break;
 
         default:
@@ -442,11 +475,11 @@ int main(int argc, char *argv[]) {
     }
 
     fresh_start:
-    auto instruction = NONE;
+    auto instruction = user_options::NONE;
     show_menu();
 
     main_loop:
-    while (instruction != QUIT) {
+    while (instruction != user_options::QUIT) {
         instruction = query_user_option();
         execute(instruction, graph);
     }
@@ -455,3 +488,97 @@ int main(int argc, char *argv[]) {
     std::cout << "\tHave a great Day!" << std::endl;
     return 0;
 }
+
+void test_case_needs_saving(Graph &graph, std::string test_file_name) {
+    std::cout << ( state.synced_to_file ? "Loading test file ... \n":"Testing requieres to load the " + test_file_name + ", yet you're currently having unsaved work.\n");
+    test_case_load_file(graph);
+}
+
+void test_case_load_file(Graph &graph
+    , std::string test_file_name
+    , bool test_file_should_exist
+    , bool discard_changes
+    , bool override_current
+    , bool override_existing
+    , bool clear_traces)
+{
+    DISABLE_STDOUT(); // so that no clutter is spouted out while testing
+
+    if(test_file_should_exist)
+        assert(std::filesystem::exists(test_file_name) && "Make sure the file the provided test file exists.");
+
+    std::streambuf* original_cin = std::cin.rdbuf();
+
+    std::string user_input_mock;
+    if(state.synced_to_file) {
+        user_input_mock = test_file_name + '\n';
+    } else if(state.loaded && discard_changes) {
+        user_input_mock = "n\n" + test_file_name + '\n';
+    } else if(state.loaded && !discard_changes) {
+        if(override_existing) {
+            user_input_mock = "y\ny\n" + test_file_name + '\n';
+        } else if (std::filesystem::exists(test_file_name + ".temp")) {
+            user_input_mock = "y\nn\n" + test_file_name + ".temp" + '\n' + "n\n";
+            size_t count = 0;
+            std::string maybe_unique = test_file_name + ".temp.0";
+            while(std::filesystem::exists(maybe_unique)) {
+                maybe_unique =  test_file_name + ".temp." + std::to_string(++count) + '\n';
+                user_input_mock = user_input_mock + "n\n" + maybe_unique + '\n';
+            }
+        } else {
+            user_input_mock = "y\nn\n" + test_file_name + ".temp\n";
+        }
+    }
+
+    // } else if(state.loaded && !discard_changes && override_current) {
+    //     user_input_mock = "y\ny\n" + test_file_name + '\n';
+    // }
+
+    /*        size_t count = 0;
+        while(std::filesystem::exists(test_file_name + ".temp" + std::to_string(count)))
+            ++count;*/
+
+    std::istringstream input_stream(user_input_mock);
+    std::cin.rdbuf(input_stream.rdbuf());
+
+    auto instruction = user_options::LOAD_FILE;
+    execute(instruction, graph);
+
+    std::cin.rdbuf(original_cin);
+
+    assert(state.loaded);
+    assert(state.synced_to_file);
+
+    ENABLE_STDOUT();
+
+    std::cout << "[x] Loading file tested successfully.\n";
+}
+
+void test_case_add_task(Graph &graph)
+{
+    DISABLE_STDOUT(); // so that no clutter is spouted out while testing
+
+    std::streambuf* original_cin = std::cin.rdbuf();
+
+    size_t original_node_count = graph.nodes.size();
+
+    std::string user_input_mock = graph.nodes.empty() ? "test_root_node\n":"0\ntest_node\n";
+    std::istringstream input_stream(user_input_mock);
+    std::cin.rdbuf(input_stream.rdbuf());
+
+    auto instruction = user_options::ADD_TASK;
+    execute(instruction, graph);
+
+    std::cin.rdbuf(original_cin);
+
+
+    assert(graph.nodes.size() == original_node_count + 1 && "Node should have been added to the graph!");
+    assert(!state.synced_to_file);
+
+    ENABLE_STDOUT();
+
+    std::cout << "[x] Adding node tested successfully.\n";
+}
+
+
+// Prevent existing file form being altered while testing!

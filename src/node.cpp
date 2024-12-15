@@ -15,8 +15,7 @@ enum node_importance {
     NEGLIGIBLE,
 };
 
-struct node_properties
-{
+struct node_properties {
     node_urgency urgency;
     node_importance importantce;
     double priority_score = 0.;
